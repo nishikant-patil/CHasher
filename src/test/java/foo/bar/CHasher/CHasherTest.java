@@ -24,8 +24,7 @@ class CHasherTest {
         int prev = 0;
         int collisionCount = 0;
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            int randomInt = i & 0xFFFF;
-            int current = cHasher.get(randomInt);
+            int current = cHasher.get(i & ROLLOVER_BOUNDARY);
             if (current == prev) {
                 ++collisionCount;
             }
@@ -38,8 +37,7 @@ class CHasherTest {
         double prev = 0;
         int collisionCount = 0;
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            int randomInt = i & ROLLOVER_BOUNDARY;
-            double current = cHasher.get(randomInt, Double::valueOf);
+            double current = cHasher.get(i & ROLLOVER_BOUNDARY, Double::valueOf);
             if (current == prev) {
                 ++collisionCount;
             }
