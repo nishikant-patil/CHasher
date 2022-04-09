@@ -2,7 +2,7 @@ package foo.bar.CHasher;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CHasherTest {
 
@@ -10,13 +10,13 @@ class CHasherTest {
 
     @Test
     void testCHasherGet() {
-        var cHasher = new CHasher<>(Integer.class, 1, 2, 3);
+        var cHasher = new CHasher<>(1, 2, 3);
         assertEquals(0, getCollisionCount(cHasher));
     }
 
     @Test
     void testCHasherGetWithExtractor() {
-        var cHasher = new CHasher<>(Integer.class, 1, 2, 3);
+        var cHasher = new CHasher<>(1, 2, 3);
         assertEquals(0, getCollisionCountWithExtractor(cHasher));
     }
 
@@ -44,5 +44,35 @@ class CHasherTest {
             prev = current;
         }
         return collisionCount;
+    }
+
+    @Test
+    void testMarkDead() {
+        var cHasher = new CHasher<>(1, 2, 3);
+        cHasher.markDead(2);
+
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            assertNotEquals(2, cHasher.get(i & ROLLOVER_BOUNDARY));
+        }
+    }
+
+    @Test
+    void testRevive() {
+        var cHasher = new CHasher<>(1, 2, 3);
+        cHasher.markDead(2);
+
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            assertNotEquals(2, cHasher.get(i & ROLLOVER_BOUNDARY));
+        }
+
+        cHasher.revive(2);
+
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            int resource = cHasher.get(i & ROLLOVER_BOUNDARY);
+            if(2 == resource) {
+                return;
+            }
+        }
+        assertTrue(false);
     }
 }
