@@ -2,8 +2,6 @@ package foo.bar.CHasher;
 
 import org.junit.jupiter.api.Test;
 
-import java.security.SecureRandom;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CHasherTest {
@@ -17,9 +15,9 @@ class CHasherTest {
     }
 
     @Test
-    void testCHasherGetWithSupplier() {
+    void testCHasherGetWithExtractor() {
         var cHasher = new CHasher<>(Integer.class, 1, 2, 3);
-        assertEquals(0, getCollisionCountWithSupplier(cHasher));
+        assertEquals(0, getCollisionCountWithExtractor(cHasher));
     }
 
     private int getCollisionCount(CHasher<Integer> cHasher) {
@@ -36,7 +34,7 @@ class CHasherTest {
         return collisionCount;
     }
 
-    private int getCollisionCountWithSupplier(CHasher<Integer> cHasher) {
+    private int getCollisionCountWithExtractor(CHasher<Integer> cHasher) {
         double prev = 0;
         int collisionCount = 0;
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
