@@ -76,7 +76,7 @@ public class CHasher<T> {
     }
 
     public void revive(T t) {
-        T[] resources = this.resourceRef.getAcquire();
+        T[] resources = this.resourceRef.get();
         T[] newResources = getResourcesArray(originalResources);
 
         for (int i = 0; i < resources.length; ++i) {
