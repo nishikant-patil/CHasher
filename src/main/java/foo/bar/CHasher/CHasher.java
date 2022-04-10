@@ -54,23 +54,21 @@ public class CHasher<T> {
         T[] resources = this.resourceRef.get();
         T[] newResources = (T[]) Array.newInstance(resources[0].getClass(), resources.length);
 
+        markDead(resources, t, newResources);
+
+        while (!this.resourceRef.compareAndSet(resources, newResources)) {
+            resources = this.resourceRef.get();
+            newResources = (T[]) Array.newInstance(resources[0].getClass(), resources.length);
+            markDead(resources, t, newResources);
+        }
+    }
+
+    private void markDead(T[] resources, T t, T[] newResources) {
         for (int i = 0; i < resources.length; ++i) {
             if (t.equals(resources[i])) {
                 newResources[i] = TOMBSTONE;
             } else {
                 newResources[i] = resources[i];
-            }
-        }
-
-        while (!this.resourceRef.compareAndSet(resources, newResources)) {
-            resources = this.resourceRef.get();
-            newResources = (T[]) Array.newInstance(resources[0].getClass(), resources.length);
-            for (int i = 0; i < resources.length; ++i) {
-                if (t.equals(resources[i])) {
-                    newResources[i] = TOMBSTONE;
-                } else {
-                    newResources[i] = resources[i];
-                }
             }
         }
     }
@@ -79,20 +77,20 @@ public class CHasher<T> {
         T[] resources = this.resourceRef.get();
         T[] newResources = getResourcesArray(originalResources);
 
-        for (int i = 0; i < resources.length; ++i) {
-            if (resources[i] == TOMBSTONE && !t.equals(newResources[i])) {
-                newResources[i] = TOMBSTONE;
-            }
-        }
+        revive(resources, t, newResources);
 
         while (!this.resourceRef.compareAndSet(resources, newResources)) {
             resources = this.resourceRef.get();
             newResources = getResourcesArray(originalResources);
 
-            for (int i = 0; i < resources.length; ++i) {
-                if (resources[i] == TOMBSTONE && !t.equals(newResources[i])) {
-                    newResources[i] = TOMBSTONE;
-                }
+            revive(resources, t, newResources);
+        }
+    }
+
+    private void revive(T[] resources, T t, T[] newResources) {
+        for (int i = 0; i < resources.length; ++i) {
+            if (resources[i] == TOMBSTONE && !t.equals(newResources[i])) {
+                newResources[i] = TOMBSTONE;
             }
         }
     }
